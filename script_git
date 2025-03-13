@@ -26,7 +26,7 @@ done
 
 mkdir -p "$(dirname "$LOGFILE")"
 
-printf "--------------------$MESSAGE_$ORIGIN-----------------------" >> "$LOGFILE"
+printf "\t\t$MESSAGE_$ORIGIN" >> "$LOGFILE"
 printf "" >> "$LOGFILE"
 printf "DATE\t\tTYPE\t\tMESSAGE" >> "$LOGFILE"
 
