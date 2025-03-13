@@ -1,7 +1,7 @@
 #!/bin/bash
 MESSAGE=${1:-"Autocommit_$(date)"}
 ORIGIN=${2:-"origin"}
-LOGFILE=${3:-"/var/log/AUTOGIT.log"}
+LOGFILE=${3:-"$HOME/autogit.log"}
 
 while getopts 'm:o:l:' opt; do
     case "${opt}" in
