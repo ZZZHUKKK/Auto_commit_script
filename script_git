@@ -1,15 +1,75 @@
 #!/bin/bash
-
-[[ ! -d .git ]] && { echo "Ошибка. Директория .git не обнаружена" >&2 ; exit 1; }
-[[ -z $(git status --porcelain) ]] && { echo "Нет изменений" >&2 ; exit 0; } 
-git add . || { echo "Ошибка индексирования изменений" ; exit 1; }
-
 MESSAGE=${1:-"Autocommit_$(date)"}
 ORIGIN=${2:-"origin"}
-BRANCH=${3:-"master"}
+LOGFILE=${3:-"/var/log/AUTOGIT.log"}
 
-git commit -m "$MESSAGE" || { echo "Ошибка создания коммита $MESSAGE"; exit 1; }
+while getopts 'm:o:l:' opt; do
+    case "${opt}" in
+      m)
+        unset MESSAGE
+        MESSAGE="$OPTARG"
+        ;;
+      o)
+        unset ORIGIN
+        ORIGIN="$OPTARG"
+        ;;
+      l)
+        unset LOGFILE
+       LOGFILE="$OPTARG"
+        ;;
+      *)
+        echo "Ввели что то не то"
+        exit 1
+        ;;
+    esac
+done
 
-git push -u $ORIGIN || { echo "Ошибка отправления в репозиторий" ; exit 1; }
+mkdir -p "$(dirname "$LOGFILE")"
 
-echo "Изменения успешно добавлены"
+echo "--------------------$MESSAGE_$ORIGIN-----------------------" >> "$LOGFILE"
+echo "" >> "$LOGFILE"
+echo "DATE\t\tTYPE\t\tMESSAGE" >> "$LOGFILE"
+
+log_streams() {
+    local out="$1"
+    local err="$2"
+
+    out="$(echo "$out" | tr -d '\r')"
+    err="$(echo "$err" | tr -d '\r')"
+
+    if [[ -n $out ]]; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S')\t|\t[STDOUT]\t|\t$out" >> "$LOGFILE"
+    fi
+    if [[ -n $err ]]; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S')\t|\t[STDERR]\t|\t$err" >> "$LOGFILE"
+    fi
+}
+
+
+exec 4> >(
+    out_buf=""
+    while IFS= read -r line; do
+        out_buf+="$line\n"
+    done
+    [[ -n "$out_buf" ]] && log_streams "$out_buf" ""
+)
+exec 5> >(
+    err_buf=""
+    while IFS= read -r line; do
+        err_buf+="$line\n"
+    done
+    [[ -n "$err_buf" ]] && log_streams "" "$err_buf"
+)
+
+exec 1>&4
+exec 2>&5
+
+[[ ! -d .git ]] && { echo "Ошибка. Директория .git не обнаружена" >&5 ; exit 1; }
+[[ -z $(git status --porcelain) ]] && { echo "Нет изменений" >&5 ; exit 0; } 
+git add . || { echo "Ошибка индексирования изменений" >&5  ; exit 1; }
+
+git commit -m "$MESSAGE" || { echo "Ошибка создания коммита $MESSAGE" >&5  ; exit 1; }
+
+git push -u $ORIGIN || { echo "Ошибка отправления в репозиторий" >&5  ; exit 1; }
+
+echo "Изменения успешно добавлены" >&4 
