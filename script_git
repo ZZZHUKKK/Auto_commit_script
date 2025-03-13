@@ -39,8 +39,8 @@ log_streams() {
     local my_date my_type
 
     # Удаляем символы возврата каретки
-    out="$(echo "$out" | tr -d '\r' | tr '\n' ' '  | sed 's/\\n/ /g')"
-    err="$(echo "$err" | tr -d '\r' | tr '\n' ' '  | sed 's/\\n/ /g')"
+    out="$(echo "$out" | tr -d '\r' | sed 's/\\n/ /g')"
+    err="$(echo "$err" | tr -d '\r' | sed 's/\\n/ /g')"
     my_date="$(date '+%Y-%m-%d %H:%M:%S')"
 
     if [[ -n $out ]]; then
