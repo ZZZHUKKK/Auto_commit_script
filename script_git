@@ -1,0 +1,15 @@
+#!/bin/bash
+
+[[ ! -d .git ]] && { echo "Ошибка. Директория .git не обнаружена" >&2 ; exit 1; }
+[[ -z $(git status --porcelain) ]] && { echo "Нет изменений" >&2 ; exit 0; } 
+git add . || { echo "Ошибка индексирования изменений" ; exit 1; }
+
+MESSAGE=${1:-"Autocommit_$(date)"}
+ORIGIN=${2:-"origin"}
+BRANCH=${3:-"master"}
+
+git commit -m "$MESSAGE" || { echo "Ошибка создания коммита $MESSAGE"; exit 1; }
+
+git push -u $ORIGIN || { echo "Ошибка отправления в репозиторий" ; exit 1; }
+
+echo "Изменения успешно добавлены"
