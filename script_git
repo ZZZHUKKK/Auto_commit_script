@@ -18,7 +18,7 @@ while getopts 'm:o:l:' opt; do
        LOGFILE="$OPTARG"
         ;;
       *)
-        echo "Ввели что то не то"
+        printf "Ввели что то не то"
         exit 1
         ;;
     esac
@@ -26,22 +26,22 @@ done
 
 mkdir -p "$(dirname "$LOGFILE")"
 
-echo "--------------------$MESSAGE_$ORIGIN-----------------------" >> "$LOGFILE"
-echo "" >> "$LOGFILE"
-echo "DATE\t\tTYPE\t\tMESSAGE" >> "$LOGFILE"
+printf "--------------------$MESSAGE_$ORIGIN-----------------------" >> "$LOGFILE"
+printf "" >> "$LOGFILE"
+printf "DATE\t\tTYPE\t\tMESSAGE" >> "$LOGFILE"
 
 log_streams() {
     local out="$1"
     local err="$2"
 
-    out="$(echo "$out" | tr -d '\r')"
-    err="$(echo "$err" | tr -d '\r')"
+    out="$(printf "$out" | tr -d '\r')"
+    err="$(printf "$err" | tr -d '\r')"
 
     if [[ -n $out ]]; then
-        echo "$(date '+%Y-%m-%d %H:%M:%S')\t|\t[STDOUT]\t|\t$out" >> "$LOGFILE"
+        printf "$(date '+%Y-%m-%d %H:%M:%S')\t|\t[STDOUT]\t|\t$out" >> "$LOGFILE"
     fi
     if [[ -n $err ]]; then
-        echo "$(date '+%Y-%m-%d %H:%M:%S')\t|\t[STDERR]\t|\t$err" >> "$LOGFILE"
+        printf "$(date '+%Y-%m-%d %H:%M:%S')\t|\t[STDERR]\t|\t$err" >> "$LOGFILE"
     fi
 }
 
@@ -64,12 +64,12 @@ exec 5> >(
 exec 1>&4
 exec 2>&5
 
-[[ ! -d .git ]] && { echo "Ошибка. Директория .git не обнаружена" >&5 ; exit 1; }
-[[ -z $(git status --porcelain) ]] && { echo "Нет изменений" >&5 ; exit 0; } 
-git add . || { echo "Ошибка индексирования изменений" >&5  ; exit 1; }
+[[ ! -d .git ]] && { printf "Ошибка. Директория .git не обнаружена" >&5 ; exit 1; }
+[[ -z $(git status --porcelain) ]] && { printf "Нет изменений" >&5 ; exit 0; } 
+git add . || { printf "Ошибка индексирования изменений" >&5  ; exit 1; }
 
-git commit -m "$MESSAGE" || { echo "Ошибка создания коммита $MESSAGE" >&5  ; exit 1; }
+git commit -m "$MESSAGE" || { printf "Ошибка создания коммита $MESSAGE" >&5  ; exit 1; }
 
-git push -u $ORIGIN || { echo "Ошибка отправления в репозиторий" >&5  ; exit 1; }
+git push -u $ORIGIN || { printf "Ошибка отправления в репозиторий" >&5  ; exit 1; }
 
-echo "Изменения успешно добавлены" >&4 
+printf "Изменения успешно добавлены" >&4 
