@@ -26,9 +26,10 @@ done
 
 mkdir -p "$(dirname "$LOGFILE")"
 
-printf "\t\t$MESSAGE_$ORIGIN" >> "$LOGFILE"
-printf "" >> "$LOGFILE"
-printf "DATE\t\tTYPE\t\tMESSAGE" >> "$LOGFILE"
+{
+  printf "--------------------%s_%s-----------------------\n\n" "$MESSAGE" "$ORIGIN"
+  printf "%-20s %-8s %s\n" "DATE" "TYPE" "MESSAGE"
+} >> "$LOGFILE"
 
 log_streams() {
     local out="$1"
@@ -37,11 +38,15 @@ log_streams() {
     out="$(printf "$out" | tr -d '\r')"
     err="$(printf "$err" | tr -d '\r')"
 
+    my_date="$(date '+%Y-%m-%d %H:%M:%S')"                 
+
     if [[ -n $out ]]; then
-        printf "$(date '+%Y-%m-%d %H:%M:%S')\t|\t[STDOUT]\t|\t$out" >> "$LOGFILE"
+        my_type="[STDOUT]" 
+        printf "%-20s %-8s %s\n" "$my_date" "$my_type" "$out" >> "$LOGFILE"
     fi
     if [[ -n $err ]]; then
-        printf "$(date '+%Y-%m-%d %H:%M:%S')\t|\t[STDERR]\t|\t$err" >> "$LOGFILE"
+        my_type="[STDERR]" 
+        printf "%-20s %-8s %s\n" "$my_date" "$my_type" "$err" >> "$LOGFILE"
     fi
 }
 
