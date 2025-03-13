@@ -27,26 +27,34 @@ done
 mkdir -p "$(dirname "$LOGFILE")"
 
 {
+  printf "==============================\n"
   printf "%s_%s\n\n" "$MESSAGE" "$ORIGIN"
-  printf "%-20s %-8s %s\n" "DATE" "TYPE" "MESSAGE"
+  printf "%-20s %-10s %s\n" "DATE" "TYPE" "MESSAGE"
+  printf "------------------------------\n"
 } >> "$LOGFILE"
 
 log_streams() {
     local out="$1"
     local err="$2"
+    local my_date my_type
 
-    out="$(printf "$out" | tr -d '\r')"
-    err="$(printf "$err" | tr -d '\r')"
-
-    my_date="$(date '+%Y-%m-%d %H:%M:%S')"                 
+    # Удаляем символы возврата каретки
+    out="$(echo "$out" | tr -d '\r')"
+    err="$(echo "$err" | tr -d '\r')"
+    my_date="$(date '+%Y-%m-%d %H:%M:%S')"
 
     if [[ -n $out ]]; then
-        my_type="[STDOUT]" 
-        printf "%-20s %-8s %s\n" "$my_date" "$my_type" "$out" >> "$LOGFILE"
+        my_type="[STDOUT]"
+        while IFS= read -r line; do
+            printf "%-20s %-10s %s\n" "$my_date" "$my_type" "$line" >> "$LOGFILE"
+        done <<< "$out"
     fi
+
     if [[ -n $err ]]; then
-        my_type="[STDERR]" 
-        printf "%-20s %-8s %s\n" "$my_date" "$my_type" "$err" >> "$LOGFILE"
+        my_type="[STDERR]"
+        while IFS= read -r line; do
+            printf "%-20s %-10s %s\n" "$my_date" "$my_type" "$line" >> "$LOGFILE"
+        done <<< "$err"
     fi
 }
 
