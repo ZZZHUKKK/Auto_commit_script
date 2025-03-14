@@ -20,7 +20,7 @@ while getopts 'm:o:l:' opt; do
         ;;
       l)
         unset LOGFILE
-       LOGFILE="$OPTARG"
+        LOGFILE="$OPTARG"
         ;;
       *)
         printf "Ввели что то не то"
