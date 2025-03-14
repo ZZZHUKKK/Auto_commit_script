@@ -1,7 +1,8 @@
 #!/bin/bash
 MESSAGE=${1:-"Autocommit_$(date)"}
 ORIGIN=${2:-"origin"}
-LOGFILE=${3:-"$HOME/autogit.log"}
+BRANCH=${3:-"master"}
+LOGFILE=${4:-"$HOME/autogit.log"}
 
 while getopts 'm:o:l:' opt; do
     case "${opt}" in
@@ -12,6 +13,10 @@ while getopts 'm:o:l:' opt; do
       o)
         unset ORIGIN
         ORIGIN="$OPTARG"
+        ;;
+      b)
+        unset BRANCH
+        BRANCH="$OPTARG"
         ;;
       l)
         unset LOGFILE
@@ -86,6 +91,6 @@ git add . || { printf "Ошибка индексирования изменен�
 
 git commit -m "$MESSAGE" || { printf "Ошибка создания коммита $MESSAGE" >&5  ; exit 1; }
 
-git push -u $ORIGIN || { printf "Ошибка отправления в репозиторий" >&5  ; exit 1; }
+git push -u $ORIGIN $BRANCH || { printf "Ошибка отправления в репозиторий" >&5  ; exit 1; }
 
 printf "Изменения успешно добавлены" >&4 
